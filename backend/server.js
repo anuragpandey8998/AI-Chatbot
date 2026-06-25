@@ -10,7 +10,13 @@ dotenv.config({
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: "https://personal-chat-bot18.netlify.app",
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"]
+}));
+
+app.options("*", cors());
 app.use(express.json());
 
 // Home Route
