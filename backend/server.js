@@ -4,19 +4,26 @@ const axios = require("axios");
 const dotenv = require("dotenv");
 const path = require("path");
 
+// Load environment variables FIRST
 dotenv.config({
     path: path.join(__dirname, ".env")
 });
 
+// Debug (Do NOT print the full API key)
+console.log("=================================");
+console.log("API Key exists:", !!process.env.OPENROUTER_API_KEY);
+console.log("API Key length:", process.env.OPENROUTER_API_KEY?.length);
+console.log("=================================");
+
 const app = express();
 
+// CORS
 app.use(cors({
     origin: "https://personal-chat-bot18.netlify.app",
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type"]
 }));
 
-app.options("*", cors());
 app.use(express.json());
 
 // Home Route
@@ -40,6 +47,8 @@ app.post("/chat", async (req, res) => {
             });
         }
 
+        console.log("Calling OpenRouter...");
+
         const response = await axios.post(
             "https://openrouter.ai/api/v1/chat/completions",
             {
@@ -59,17 +68,22 @@ app.post("/chat", async (req, res) => {
             }
         );
 
+        console.log("OpenRouter Success");
+
         res.json(response.data);
 
     } catch (error) {
 
-        console.error("OpenRouter Error:");
+        console.error("========== OpenRouter Error ==========");
 
         if (error.response) {
+            console.error("Status:", error.response.status);
             console.error(error.response.data);
         } else {
             console.error(error.message);
         }
+
+        console.error("======================================");
 
         res.status(500).json({
             choices: [
@@ -83,6 +97,7 @@ app.post("/chat", async (req, res) => {
     }
 });
 
+// Start Server
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
