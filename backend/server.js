@@ -1,30 +1,38 @@
-const path = require("path");
-
-require("dotenv").config({
-  path: path.join(__dirname, ".env")
-});
-console.log("API Key:", process.env.OPENROUTER_API_KEY);
-console.log(process.cwd());
-console.log("API Key:", process.env.OPENROUTER_API_KEY);
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
+const dotenv = require("dotenv");
+const path = require("path");
+
+dotenv.config({
+    path: path.join(__dirname, ".env")
+});
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Home Route
 app.get("/", (req, res) => {
-    res.send("Backend Running Successfully");
+    res.send("✅ Backend Running Successfully");
 });
+
+// Chat Route
 app.post("/chat", async (req, res) => {
 
-    console.log("POST /chat received");
+    console.log("POST /chat");
     console.log(req.body);
 
     try {
 
         const userMessage = req.body.message;
+
+        if (!userMessage) {
+            return res.status(400).json({
+                error: "Message is required"
+            });
+        }
 
         const response = await axios.post(
             "https://openrouter.ai/api/v1/chat/completions",
@@ -45,21 +53,23 @@ app.post("/chat", async (req, res) => {
             }
         );
 
-        console.log(response.data);
-
         res.json(response.data);
 
     } catch (error) {
 
-        console.error(
-            error.response?.data || error.message
-        );
+        console.error("OpenRouter Error:");
+
+        if (error.response) {
+            console.error(error.response.data);
+        } else {
+            console.error(error.message);
+        }
 
         res.status(500).json({
             choices: [
                 {
                     message: {
-                        content: "API Error. Check server logs."
+                        content: "API Error. Check Render Logs."
                     }
                 }
             ]
