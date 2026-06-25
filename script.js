@@ -32,7 +32,7 @@ async function sendMessage() {
         </div>
         `;
 
-        const response = await fetch("http://localhost:3000/chat", {
+        const response = await fetch("https://ai-chatbot-a5yv.onrender.com/chat", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
